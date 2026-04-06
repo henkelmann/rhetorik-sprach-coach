@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DX Redetraining">
+<meta name="theme-color" content="#080810">
+<meta name="description" content="DX Session – Redetraining: KI-Produktivität in der Softwareentwicklung">
+<title>DX Session – Redetraining</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMDgwODEwIi8+PHJlY3QgeD0iMzAiIHk9IjQwIiB3aWR0aD0iMTIwIiBoZWlnaHQ9IjgwIiByeD0iOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjQiLz48cGF0aCBkPSJNNjUgMTIwbDI1IDI1IDI1LTI1IiBmaWxsPSJub25lIiBzdHJva2U9IiMwZWE1ZTkiIHN0cm9rZS13aWR0aD0iNCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iOTAiIGN5PSI3NSIgcj0iMTUiIGZpbGw9IiMwZWE1ZTkiIG9wYWNpdHk9Ii4zIi8+PGNpcmNsZSBjeD0iOTAiIGN5PSI3NSIgcj0iOCIgZmlsbD0iIzBlYTVlOSIvPjxsaW5lIHgxPSI0NSIgeTE9IjU1IiB4Mj0iNzAiIHkyPSI1NSIgc3Ryb2tlPSIjMGVhNWU5IiBzdHJva2Utd2lkdGg9IjMiIG9wYWNpdHk9Ii41Ii8+PGxpbmUgeD0iNDUiIHkxPSI2NSIgeDI9IjY1IiB5Mj0iNjUiIHN0cm9rZT0iIzBlYTVlOSIgc3Ryb2tlLXdpZHRoPSIzIiBvcGFjaXR5PSIuMyIvPjwvc3ZnPg==">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRFggU2Vzc2lvbiDigJMgUmVkZXRyYWluaW5nIiwic2hvcnRfbmFtZSI6IkRYIFRyYWluaW5nIiwiZGVzY3JpcHRpb24iOiJSZWRldHJhaW5pbmc6IEtJLVByb2R1a3Rpdml0w6R0IGluIGRlciBTb2Z0d2FyZWVudHdpY2tsdW5nIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwODA4MTAiLCJ0aGVtZV9jb2xvciI6IiMwODA4MTAiLCJpY29ucyI6W119">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#080810;--card:#12121e;--card-hover:#1a1a2e;
+--accent:#0ea5e9;--accent-light:#38bdf8;--accent-glow:rgba(14,165,233,.15);
+--text:#e8e6e3;--text-dim:#8a8a9a;--text-muted:#55556a;
+--success:#34c759;--danger:#ff3b30;--amber:#f59e0b;
+--radius:16px;--radius-sm:10px;
+--safe-top:env(safe-area-inset-top,0px);
+--safe-bottom:env(safe-area-inset-bottom,0px);
+--safe-left:env(safe-area-inset-left,0px);
+--safe-right:env(safe-area-inset-right,0px);
+}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+background:var(--bg);color:var(--text);
+min-height:100vh;min-height:100dvh;
+overflow-x:hidden;
+-webkit-font-smoothing:antialiased;
+padding-top:var(--safe-top);
+padding-bottom:var(--safe-bottom);
+padding-left:var(--safe-left);
+padding-right:var(--safe-right);
+}
+.app{max-width:480px;margin:0 auto;padding:0 16px 120px}
+
+/* Header */
+.header{text-align:center;padding:32px 0 8px}
+.header h1{
+font-size:1.5rem;font-weight:700;
+background:linear-gradient(135deg,var(--accent),var(--accent-light));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+background-clip:text;letter-spacing:-.5px;
+}
+.header p{font-size:.82rem;color:var(--text-dim);margin-top:6px;line-height:1.4}
+
+/* Views */
+.view{display:none}
+.view.active{display:block}
+
+/* Slide cards */
+.slide-card{
+background:linear-gradient(145deg,var(--card),#0e0e1a);
+border:1px solid rgba(255,255,255,.06);
+border-radius:var(--radius);
+padding:18px 20px;margin-bottom:12px;
+cursor:pointer;
+transition:transform .2s,box-shadow .2s,border-color .3s;
+position:relative;overflow:hidden;
+display:flex;align-items:center;gap:16px;
+}
+.slide-card::before{
+content:'';position:absolute;top:0;left:0;right:0;height:2px;
+background:linear-gradient(90deg,transparent,var(--accent),transparent);
+opacity:0;transition:opacity .3s;
+}
+.slide-card:active{transform:scale(.97)}
+.slide-card:hover::before,.slide-card:active::before{opacity:1}
+.slide-num{
+width:44px;height:44px;border-radius:12px;
+background:var(--accent-glow);
+display:flex;align-items:center;justify-content:center;
+font-size:1.2rem;font-weight:700;color:var(--accent);
+flex-shrink:0;
+}
+.slide-info{flex:1;min-width:0}
+.slide-title{font-size:.95rem;font-weight:600;margin-bottom:3px}
+.slide-sub{font-size:.78rem;color:var(--text-dim);line-height:1.3}
+.slide-dot{
+width:10px;height:10px;border-radius:50%;
+border:2px solid var(--text-muted);
+flex-shrink:0;transition:all .3s;
+}
+.slide-dot.done{
+background:var(--success);border-color:var(--success);
+box-shadow:0 0 8px rgba(52,199,89,.4);
+}
+
+/* Back button */
+.back-btn{
+display:inline-flex;align-items:center;gap:6px;
+background:none;border:none;color:var(--accent);
+font-size:.9rem;font-weight:600;cursor:pointer;
+padding:16px 0;font-family:inherit;
+}
+.back-btn svg{width:18px;height:18px}
+
+/* Detail header */
+.detail-header{margin-bottom:20px}
+.detail-slide-num{
+font-size:.75rem;font-weight:700;color:var(--accent);
+text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+}
+.detail-title{font-size:1.3rem;font-weight:700;line-height:1.3}
+.detail-section{
+display:inline-block;margin-top:8px;
+font-size:.7rem;color:var(--accent);
+background:var(--accent-glow);
+padding:3px 10px;border-radius:20px;
+}
+
+/* Mode toggle */
+.mode-toggle-wrap{display:flex;justify-content:center;padding:4px 0 20px}
+.mode-toggle{
+display:flex;background:rgba(255,255,255,.06);
+border-radius:30px;padding:3px;position:relative;
+}
+.mode-toggle-btn{
+position:relative;z-index:1;
+padding:8px 24px;border-radius:27px;border:none;
+font-size:.82rem;font-weight:600;cursor:pointer;
+font-family:inherit;color:var(--text-dim);
+background:transparent;transition:color .3s;white-space:nowrap;
+}
+.mode-toggle-btn.active{color:#fff}
+.mode-toggle-slider{
+position:absolute;top:3px;height:calc(100% - 6px);
+border-radius:27px;background:var(--accent);
+transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);
+z-index:0;
+}
+
+/* Text content */
+.text-content{
+line-height:1.75;font-size:.95rem;
+}
+.sentence{
+display:inline;
+transition:background .3s,color .3s;
+border-radius:4px;padding:1px 0;
+}
+.sentence.current{
+background:rgba(14,165,233,.25);
+color:#fff;font-weight:600;
+border-radius:4px;padding:1px 4px;
+}
+.sentence.read{color:var(--text-muted)}
+.sentence-block{margin-bottom:12px}
+
+/* Regieanweisung */
+.direction{
+background:rgba(255,255,255,.03);
+border-left:3px solid rgba(255,255,255,.1);
+border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+padding:10px 14px;margin:14px 0;
+font-size:.82rem;font-style:italic;
+color:var(--text-dim);line-height:1.5;
+}
+.direction::before{content:'';margin-right:0}
+
+/* Pause marker */
+.pause-marker{
+display:flex;align-items:center;gap:10px;
+margin:16px 0;padding:0 4px;
+}
+.pause-line{flex:1;height:1px;background:var(--amber);opacity:.4}
+.pause-label{
+font-size:.65rem;font-weight:700;
+color:var(--amber);letter-spacing:2px;
+text-transform:uppercase;white-space:nowrap;
+}
+
+/* Vorleser controls */
+.vorleser-controls{
+background:linear-gradient(145deg,var(--card),#0e0e1a);
+border:1px solid rgba(255,255,255,.06);
+border-radius:var(--radius);
+padding:20px;margin-bottom:20px;
+}
+.vorleser-progress{
+text-align:center;font-size:.78rem;
+color:var(--text-dim);margin-bottom:14px;
+}
+.vorleser-buttons{
+display:flex;align-items:center;justify-content:center;gap:16px;
+margin-bottom:16px;
+}
+.ctrl-btn{
+width:44px;height:44px;border-radius:50%;
+background:rgba(255,255,255,.06);
+border:none;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+transition:background .2s,transform .15s;
+color:var(--text);
+}
+.ctrl-btn:active{transform:scale(.9)}
+.ctrl-btn svg{width:20px;height:20px}
+.ctrl-btn.play{
+width:60px;height:60px;
+background:var(--accent);
+box-shadow:0 0 20px rgba(14,165,233,.3);
+}
+.ctrl-btn.play:active{background:var(--accent-light)}
+.ctrl-btn.play svg{width:28px;height:28px}
+.ctrl-btn.stop{background:rgba(255,59,48,.15)}
+.ctrl-btn.stop svg{color:var(--danger)}
+
+.speed-control{
+display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.speed-label{font-size:.75rem;color:var(--text-dim)}
+.speed-value{
+font-size:.85rem;font-weight:700;color:var(--accent);
+min-width:38px;text-align:center;
+}
+.speed-btn{
+width:32px;height:32px;border-radius:8px;
+background:rgba(255,255,255,.06);border:none;
+color:var(--text);cursor:pointer;
+font-size:1rem;font-weight:700;
+display:flex;align-items:center;justify-content:center;
+}
+.speed-btn:active{background:rgba(255,255,255,.12)}
+
+/* Timer */
+.timer-bar{
+background:linear-gradient(145deg,var(--card),#0e0e1a);
+border:1px solid rgba(255,255,255,.06);
+border-radius:var(--radius-sm);
+padding:12px 16px;margin-top:20px;
+display:flex;align-items:center;justify-content:space-between;
+}
+.timer-icon{font-size:1.1rem}
+.timer-value{font-size:.9rem;font-weight:600;font-variant-numeric:tabular-nums}
+.timer-label{font-size:.75rem;color:var(--text-dim)}
+
+/* Fertig button */
+.fertig-btn{
+width:100%;padding:14px;margin-top:16px;
+border-radius:var(--radius-sm);border:none;
+background:var(--success);color:#fff;
+font-size:.95rem;font-weight:700;cursor:pointer;
+font-family:inherit;transition:opacity .2s;
+}
+.fertig-btn:active{opacity:.7}
+.fertig-btn.done{background:var(--text-muted);color:var(--text)}
+
+/* Session bar */
+.session-bar{
+position:fixed;bottom:0;left:0;right:0;
+background:rgba(8,8,16,.92);
+backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+border-top:1px solid rgba(255,255,255,.06);
+padding:12px 20px calc(12px + var(--safe-bottom));
+text-align:center;z-index:100;
+}
+.session-text{font-size:.82rem;color:var(--text-dim)}
+.session-count{color:var(--accent);font-weight:700}
+.session-dots{
+display:flex;justify-content:center;gap:6px;margin-top:8px;
+}
+.session-dot{
+width:8px;height:8px;border-radius:50%;
+background:rgba(255,255,255,.1);
+transition:background .3s;
+}
+.session-dot.done{background:var(--success)}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.slide-card{animation:fadeIn .4s ease both}
+.slide-card:nth-child(2){animation-delay:.05s}
+.slide-card:nth-child(3){animation-delay:.1s}
+.slide-card:nth-child(4){animation-delay:.15s}
+.slide-card:nth-child(5){animation-delay:.2s}
+.slide-card:nth-child(6){animation-delay:.25s}
+.slide-card:nth-child(7){animation-delay:.3s}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- OVERVIEW VIEW -->
+<div id="overview" class="view active">
+<div class="header">
+<h1>DX Session – Redetraining</h1>
+<p>KI-Produktivität in der Softwareentwicklung<br>7 Folien zum Üben</p>
+</div>
+<div id="slideList"></div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div id="detail" class="view">
+<button class="back-btn" onclick="showOverview()">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+Übersicht
+</button>
+<div class="detail-header">
+<div class="detail-slide-num" id="detailNum"></div>
+<div class="detail-title" id="detailTitle"></div>
+<div class="detail-section" id="detailSection" style="display:none"></div>
+</div>
+<div class="mode-toggle-wrap">
+<div class="mode-toggle" id="modeToggle">
+<div class="mode-toggle-slider" id="modeSlider"></div>
+<button class="mode-toggle-btn active" id="btnLesen" onclick="setMode('lesen')">📖 Lesen</button>
+<button class="mode-toggle-btn" id="btnVorleser" onclick="setMode('vorleser')">🔊 Vorleser</button>
+</div>
+</div>
+<div id="vorleserControls" class="vorleser-controls" style="display:none">
+<div class="vorleser-progress" id="vorleserProgress">Satz 0 von 0</div>
+<div class="vorleser-buttons">
+<button class="ctrl-btn" onclick="skipPrev()" title="Vorheriger Satz">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+</button>
+<button class="ctrl-btn play" id="playBtn" onclick="togglePlay()">
+<svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+<svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6zm8-14v14h4V5z"/></svg>
+</button>
+<button class="ctrl-btn stop" onclick="stopReading()">
+<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+</button>
+<button class="ctrl-btn" onclick="skipNext()" title="Nächster Satz">
+<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+</button>
+</div>
+<div class="speed-control">
+<span class="speed-label">Tempo</span>
+<button class="speed-btn" onclick="changeSpeed(-0.1)">−</button>
+<span class="speed-value" id="speedValue">1.0x</span>
+<button class="speed-btn" onclick="changeSpeed(0.1)">+</button>
+</div>
+</div>
+<div class="text-content" id="textContent"></div>
+<div class="timer-bar">
+<span class="timer-icon">⏱</span>
+<span class="timer-label">Übungszeit</span>
+<span class="timer-value" id="timerValue">0:00</span>
+</div>
+<button class="fertig-btn" id="fertigBtn" onclick="markDone()">✓ Folie geübt</button>
+</div>
+
+</div>
+
+<!-- Session bar -->
+<div class="session-bar">
+<div class="session-text"><span class="session-count" id="sessionCount">0</span>/7 Folien geübt</div>
+<div class="session-dots" id="sessionDots"></div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const slides = [
+{
+id:1,title:"Einstieg & Selbstvorstellung",sub:"Wer bin ich, was ist DX, warum ist das relevant",
+section:null,
+content:[
+{type:"direction",text:"30 Sekunden. Klar und prägnant – nicht zu technisch."},
+{type:"sentence",text:"Wir arbeiten täglich mit den Themen, über die ich heute berichte – und ich freue mich, dass ich die Erkenntnisse aus einer spannenden externen Session direkt mit euch teilen kann."},
+{type:"pause",text:"Blickkontakt halten"},
+{type:"direction",text:"30 Sekunden. Klar und prägnant – nicht zu technisch."},
+{type:"sentence",text:"Für alle, die DX noch nicht kennen:"},
+{type:"sentence",text:"DX – kurz für Developer Experience – ist ein US-amerikanisches Research- und Analytics-Unternehmen, spezialisiert darauf, wie produktiv Software-Teams wirklich sind."},
+{type:"sentence",text:"Sie führen Längsschnittstudien durch, also keine Momentaufnahmen, sondern Messungen über Monate hinweg – bei hunderten Unternehmen weltweit."},
+{type:"sentence",text:"Ihr bekanntestes Werk ist das Developer Experience Framework, das zum Standard geworden ist, wenn Firmen wie Google, Microsoft oder SAP ihre Engineering-Produktivität messen."},
+{type:"sentence",text:"Kurzum: Wenn DX Zahlen nennt, sind das keine Marketing-Versprechen. Das sind Daten."},
+{type:"direction",text:"Spanne den Bogen. Mach das Publikum neugierig."},
+{type:"sentence",text:"Und genau deshalb war die Frage, mit der diese Session gestartet ist, so interessant:"},
+{type:"sentence",text:"Wir setzen KI ein. Wir investieren. Wir reden alle davon."},
+{type:"sentence",text:"Aber – was bringt es uns wirklich?"},
+{type:"pause",text:"Lass die Frage kurz wirken"},
+{type:"sentence",text:"Ich war in dieser Session dabei, und ich habe ein paar Antworten mitgebracht. Manche sind ermutigend. Manche sind unbequem. Alle sind wichtig."},
+]
+},
+{
+id:2,title:"Management Summary",sub:"Vier Zahlen, ein Prinzip: Human first",
+section:"Kernbotschaft",
+content:[
+{type:"direction",text:"Gib dem Publikum die 30.000-Fuß-Perspektive. Dann zoome ein."},
+{type:"sentence",text:"Diese Folie zeigt euch das Ergebnis in vier Zahlen."},
+{type:"sentence",text:"Etwa zehn Prozent realer Produktivitätssteigerung durch KI. Sechzig Prozent mehr KI-Nutzung in den untersuchten Teams. Zwei Säulen, nach denen wir ROI messen sollten. Und ein Prinzip, das alles übersteuert: Human first."},
+{type:"pause",text:"Blickkontakt halten"},
+{type:"sentence",text:"Weil wir genau jetzt die Weichen stellen."},
+{type:"sentence",text:"Wir alle spüren den Druck: KI soll Produktivität bringen. Vorstände fragen nach. Budgets werden begründet. Erwartungen sind hoch."},
+{type:"sentence",text:"Aber stellen wir uns vor, wir messen falsch – und kommunizieren nach oben falsch. Dann haben wir ein Problem, das sich selbst verstärkt."},
+{type:"pause",text:"Blickkontakt halten"},
+{type:"direction",text:"Diese fünf Sätze sind dein zentrales Statement. Sprich sie langsam und klar."},
+{type:"sentence",text:"Ich möchte euch eine Kernbotschaft mitgeben, die ich aus dieser Session mitgenommen habe:"},
+{type:"sentence",text:"Erstens: Codieren war nie der Engpass."},
+{type:"sentence",text:"Zweitens: KI beschleunigt genau den Teil unserer Arbeit, der ohnehin nicht der Flaschenhals war."},
+{type:"sentence",text:"Drittens: Planung, Alignment, Reviews – das sind die echten Engpässe. Und die bleiben menschlich."},
+{type:"sentence",text:"Viertens: Wer das versteht, kann KI strategisch einsetzen."},
+{type:"sentence",text:"Fünftens: Wer das ignoriert, wird enttäuscht sein – und andere enttäuschen."},
+{type:"pause",text:"Blickkontakt in die Runde"},
+]
+},
+{
+id:3,title:"Realität vs. Erwartung",sub:"65% mehr KI-Nutzung → nur 9–12% Produktivitätsgewinn",
+section:"Daten & Analyse",
+content:[
+{type:"direction",text:"Baue Spannung auf. Diese Zahl überrascht."},
+{type:"sentence",text:"Stellt euch vor: Ihr erhöht die KI-Nutzung in euren Teams um 65 Prozent."},
+{type:"sentence",text:"Mehr Prompts. Mehr Copilot. Mehr AI-Code."},
+{type:"sentence",text:"Was erwartet ihr: zwanzig Prozent mehr Output? Dreißig?"},
+{type:"pause"},
+{type:"sentence",text:"Die DX-Studie sagt: Neun bis zwölf Prozent."},
+{type:"pause",text:"Wirken lassen"},
+{type:"sentence",text:"Das ist nicht nichts. Aber es ist auch nicht die Revolution, die manche versprechen."},
+{type:"direction",text:"Fairness zeigen. Keine Panikmache. Aber klare Einordnung."},
+{type:"sentence",text:"Wenn wir von zwei- oder dreifacher Produktivitätssteigerung lesen – in Pressemitteilungen, auf LinkedIn, in Pitches von Tool-Anbietern – dann beschreiben diese Zahlen oft sehr spezifische Szenarien. Isolierte Aufgaben. Ideale Bedingungen."},
+{type:"sentence",text:"In der Realität unseres SDLC – des vollständigen Softwareentwicklungsprozesses – sieht es anders aus."},
+{type:"sentence",text:"KI macht das Schreiben von Code schneller. Das stimmt."},
+{type:"sentence",text:"Aber Schreiben war nie das Problem."},
+{type:"direction",text:"Hier kommt das Herzstück. Erkläre es bildhaft."},
+{type:"sentence",text:"Stellt euch eine Autobahn vor: KI hat die Höchstgeschwindigkeit erhöht. Aber die Staus entstehen an den Auffahrten – bei der Planung, beim Alignment, bei den Reviews."},
+{type:"sentence",text:"Und an diesen Staus ändert KI heute kaum etwas."},
+{type:"pause"},
+]
+},
+{
+id:4,title:"Das Zwei-Säulen-Modell",sub:"Amplifikation & Augmentation – KI-ROI richtig messen",
+section:"Messung & ROI",
+content:[
+{type:"direction",text:"Direkt und provokant einsteigen."},
+{type:"sentence",text:"Ich möchte eine unbequeme Frage stellen:"},
+{type:"sentence",text:"Wie messen wir eigentlich gerade den Mehrwert von KI in unserem Unternehmen?"},
+{type:"pause",text:"Kurz warten, Reaktionen beobachten"},
+{type:"sentence",text:"Falls die Antwort Lines of Code oder wer KI mehr nutzt, liefert mehr ist – dann haben wir ein Messproblem."},
+{type:"sentence",text:"DX hat eine klare Warnung ausgesprochen:"},
+{type:"sentence",text:"Wer KI-affine Entwickler mit weniger KI-affinen vergleicht, misst Persönlichkeit – keine KI-Wirkung."},
+{type:"sentence",text:"Wer mehr Nutzung mit mehr Output gleichsetzt, verwechselt Korrelation mit Kausalität."},
+{type:"direction",text:"Erkläre die zwei Säulen klar und mit konkreten Beispielen."},
+{type:"sentence",text:"DX empfiehlt ein Zwei-Säulen-Modell:"},
+{type:"sentence",text:"Säule eins: Amplifikation. Wie viel schneller wird ein Mensch durch KI? Gemessen über PR-Throughput, also die Anzahl atomarer Änderungen pro Zeitraum – über Monate hinweg, nicht als Momentaufnahme."},
+{type:"sentence",text:"Säule zwei: Augmentation. Was leisten KI-Agenten als eigenständige Kapazität? Hier gibt es eine elegante Metrik: die Agent Hourly Rate – wie viele menschenäquivalente Arbeitsstunden liefert ein Agent, geteilt durch die API-Kosten."},
+{type:"sentence",text:"Das gibt uns einen echten ROI-Wert. Vergleichbar. Erklärbar. Überzeugend."},
+{type:"pause",text:"Blickkontakt halten"},
+{type:"sentence",text:"Meine Empfehlung an uns: Lasst uns prüfen, ob wir unser Messmodell auf dieses Framework umstellen können."},
+{type:"sentence",text:"Nicht morgen. Aber als strategisches Ziel in diesem Jahr."},
+]
+},
+{
+id:5,title:"Kontext schlägt Tool-Wahl",sub:"Nicht das Tool zählt, sondern der Kontext",
+section:"Strategie",
+content:[
+{type:"direction",text:"Hier kannst du etwas provokanter sein – das weckt auf."},
+{type:"sentence",text:"Welches Tool ist das beste? Claude? Cursor? Copilot? Gemini?"},
+{type:"sentence",text:"Das ist die falsche Frage."},
+{type:"pause"},
+{type:"sentence",text:"Modelle verbessern sich wöchentlich. Jede Entscheidung, die wir heute auf Tool-Ebene treffen, ist morgen möglicherweise schon überholt."},
+{type:"sentence",text:"Der echte Hebel liegt woanders:"},
+{type:"sentence",text:"KI ist nur so gut wie der Kontext, den wir ihr geben."},
+{type:"sentence",text:"Gute Spezifikationen, saubere Dokumentation, ein klares Verständnis der Codebasis – das sind die Faktoren, die den Unterschied machen zwischen einem KI-Output, den wir nutzen können, und einem, den wir wegwerfen."},
+{type:"pause",text:"Blickkontakt halten"},
+{type:"sentence",text:"DX hat zwei Trends beobachtet, die auch für uns relevant sind:"},
+{type:"sentence",text:"Erstens: Die Rolle des Software-Ingenieurs wandelt sich. Weniger Kopf runter und coden, mehr orchestrieren, reviewen, entscheiden. Das ist nicht für jeden eine attraktive Verschiebung – und das müssen wir ernst nehmen."},
+{type:"sentence",text:"Zweitens: Nicht-Ingenieure betreten die Codebasis. Designer, Produktmanager – sie werden mit KI-Unterstützung direkt zu Beitragenden. Das stellt unsere Plattform-Teams vor neue Aufgaben bei Guardrails und Lizenzen."},
+{type:"pause"},
+]
+},
+{
+id:6,title:"Konkrete Ableitungen",sub:"Sechs Handlungsfelder für unser Unternehmen",
+section:"Handlungsfelder",
+content:[
+{type:"direction",text:"Gehe die Punkte zügig durch – nicht jeden erklären, sondern die wichtigsten hervorheben."},
+{type:"sentence",text:"Diese Session hat mir sechs konkrete Handlungsfelder gegeben, über die ich heute anstoßen möchte nachzudenken:"},
+{type:"sentence",text:"Erstens: Erwartungen zurücksetzen. Bevor externe Zahlen die interne Diskussion prägen, sollten wir selbst die Botschaft setzen: Zehn Prozent realer Gewinn – das ist gut, das ist messbar, das ist unser Ausgangspunkt."},
+{type:"sentence",text:"Zweitens: Enablement-Team. Ein dediziertes Team, das KI-Workflows erforscht, testet und organisationsweit teilt."},
+{type:"sentence",text:"Drittens: Engpass-Fokus. Effizienzmaßnahmen nicht nur auf Codierung, sondern auf Planung, Reviews und Alignment ausrichten."},
+{type:"sentence",text:"Viertens: Messung. Longitudinalen Messrahmen einführen – Amplifikation und Augmentation als KPIs."},
+{type:"sentence",text:"Fünftens: Token-Kosten. Verbrauch tracken, ROI pro Automatisierung bewerten."},
+{type:"sentence",text:"Sechstens: Specs-Qualität. Bessere Spezifikationen gleich deutlich bessere KI-Ergebnisse. Das ist ein Mindset-Thema."},
+{type:"direction",text:"Hebe Punkt 1 und 3 besonders hervor – die sind für dein Management am direktesten relevant."},
+]
+},
+{
+id:7,title:"Abschluss & Call to Action",sub:"Vier nächste Schritte – und eine Einladung zur Diskussion",
+section:"Abschluss",
+content:[
+{type:"direction",text:"Kein abruptes Ende. Lass es landen."},
+{type:"sentence",text:"Ich komme zurück zur Frage, mit der ich gestartet bin:"},
+{type:"sentence",text:"Was bringt KI uns wirklich?"},
+{type:"pause"},
+{type:"sentence",text:"DX hat eine Antwort gegeben. Aber die eigentliche Antwort müssen wir selbst schreiben."},
+{type:"sentence",text:"Denn was ich heute geteilt habe, ist die Sicht eines externen Unternehmens auf den Stand der Industrie."},
+{type:"sentence",text:"Wie wir das für uns übersetzen – das ist unsere Aufgabe."},
+{type:"sentence",text:"Vier konkrete nächste Schritte:"},
+{type:"sentence",text:"Erstens: Infrastruktur prüfen – Sind CI/CD und Dokumentation agenten-ready?"},
+{type:"sentence",text:"Zweitens: Messrahmen anpassen – Können wir von reiner Velocity zu Amplifikation und Augmentation wechseln?"},
+{type:"sentence",text:"Drittens: Pilotgruppen – Experimentierräume für neue KI-Workflows definieren, zum Beispiel Background Agents."},
+{type:"sentence",text:"Viertens: Plattform vorbereiten – Guardrails und Lizenzen für Nicht-Ingenieure als neue Zielgruppe."},
+{type:"direction",text:"Stark enden. Kurze, klare Sätze."},
+{type:"sentence",text:"Ich glaube: Die Teams, die KI jetzt strategisch angehen – nicht als Hype, sondern als Werkzeug – werden in zwei Jahren einen messbaren Vorsprung haben."},
+{type:"sentence",text:"Ich möchte, dass wir zu diesen Teams gehören."},
+{type:"pause",text:"Blickkontakt, dann Lächeln"},
+{type:"sentence",text:"Ich bin gespannt auf eure Perspektiven. Was denkt ihr: Wo sehen wir den größten Hebel?"},
+]
+}
+];
+
+// ==================== STATE ====================
+let currentSlide = null;
+let currentMode = 'lesen';
+let ttsRate = 1.0;
+let ttsPlaying = false;
+let ttsPaused = false;
+let currentSentenceIdx = 0;
+let sentenceSpans = [];
+let sentenceTexts = [];
+let timerInterval = null;
+let timerSeconds = 0;
+let synth = window.speechSynthesis;
+
+// ==================== PROGRESS ====================
+function todayKey(){return new Date().toISOString().slice(0,10)}
+function getProgress(){
+try{return JSON.parse(localStorage.getItem('dx-session-progress')||'{}')}catch(e){return{}}
+}
+function setProgress(p){localStorage.setItem('dx-session-progress',JSON.stringify(p))}
+function isSlidesDone(id){
+const p=getProgress();const k=todayKey();
+return p[k]&&p[k].includes(id);
+}
+function markSlideDone(id){
+const p=getProgress();const k=todayKey();
+if(!p[k])p[k]=[];
+if(!p[k].includes(id))p[k].push(id);
+setProgress(p);
+}
+function countDoneToday(){
+const p=getProgress();const k=todayKey();
+return(p[k]||[]).length;
+}
+
+// ==================== RENDER OVERVIEW ====================
+function renderOverview(){
+const list=document.getElementById('slideList');
+list.innerHTML='';
+slides.forEach(s=>{
+const done=isSlidesDone(s.id);
+const card=document.createElement('div');
+card.className='slide-card';
+card.onclick=()=>showSlide(s.id);
+card.innerHTML=`
+<div class="slide-num">${s.id}</div>
+<div class="slide-info">
+<div class="slide-title">${s.title}</div>
+<div class="slide-sub">${s.sub}</div>
+</div>
+<div class="slide-dot${done?' done':''}"></div>`;
+list.appendChild(card);
+});
+updateSessionBar();
+}
+
+function updateSessionBar(){
+const count=countDoneToday();
+document.getElementById('sessionCount').textContent=count;
+const dots=document.getElementById('sessionDots');
+dots.innerHTML='';
+for(let i=1;i<=7;i++){
+const d=document.createElement('div');
+d.className='session-dot'+(isSlidesDone(i)?' done':'');
+dots.appendChild(d);
+}
+}
+
+// ==================== SHOW VIEWS ====================
+function showOverview(){
+stopReading();
+clearTimer();
+document.getElementById('overview').classList.add('active');
+document.getElementById('detail').classList.remove('active');
+renderOverview();
+}
+
+function showSlide(id){
+currentSlide=slides.find(s=>s.id===id);
+if(!currentSlide)return;
+document.getElementById('overview').classList.remove('active');
+document.getElementById('detail').classList.add('active');
+document.getElementById('detailNum').textContent='Folie '+currentSlide.id+' von 7';
+document.getElementById('detailTitle').textContent=currentSlide.title;
+if(currentSlide.section){
+document.getElementById('detailSection').style.display='inline-block';
+document.getElementById('detailSection').textContent=currentSlide.section;
+}else{
+document.getElementById('detailSection').style.display='none';
+}
+currentMode='lesen';
+updateModeUI();
+renderContent();
+startTimer();
+updateFertigBtn();
+}
+
+// ==================== MODE TOGGLE ====================
+function setMode(mode){
+stopReading();
+currentMode=mode;
+updateModeUI();
+renderContent();
+}
+
+function updateModeUI(){
+const btnL=document.getElementById('btnLesen');
+const btnV=document.getElementById('btnVorleser');
+const slider=document.getElementById('modeSlider');
+const controls=document.getElementById('vorleserControls');
+if(currentMode==='lesen'){
+btnL.classList.add('active');btnV.classList.remove('active');
+controls.style.display='none';
+requestAnimationFrame(()=>{
+slider.style.left=btnL.offsetLeft+'px';
+slider.style.width=btnL.offsetWidth+'px';
+});
+}else{
+btnV.classList.add('active');btnL.classList.remove('active');
+controls.style.display='block';
+requestAnimationFrame(()=>{
+slider.style.left=btnV.offsetLeft+'px';
+slider.style.width=btnV.offsetWidth+'px';
+});
+}
+}
+
+// ==================== RENDER CONTENT ====================
+function renderContent(){
+const container=document.getElementById('textContent');
+container.innerHTML='';
+sentenceSpans=[];
+sentenceTexts=[];
+let sentenceCount=0;
+currentSlide.content.forEach((item,idx)=>{
+if(item.type==='direction'){
+const div=document.createElement('div');
+div.className='direction';
+div.innerHTML='💡 '+item.text;
+container.appendChild(div);
+}else if(item.type==='pause'){
+const div=document.createElement('div');
+div.className='pause-marker';
+div.innerHTML='<div class="pause-line"></div><div class="pause-label">'+(item.text?'Pause – '+item.text:'Pause')+'</div><div class="pause-line"></div>';
+container.appendChild(div);
+}else if(item.type==='sentence'){
+const span=document.createElement('span');
+span.className='sentence';
+span.dataset.sentenceIdx=sentenceCount;
+span.textContent=item.text+' ';
+container.appendChild(span);
+sentenceSpans.push(span);
+sentenceTexts.push(item.text);
+sentenceCount++;
+}
+});
+if(currentMode==='vorleser'){
+currentSentenceIdx=0;
+updateVorleserProgress();
+}
+}
+
+// ==================== VORLESER / TTS ====================
+function getGermanVoice(){
+const voices=synth.getVoices();
+let best=null;
+for(const v of voices){
+if(v.lang&&v.lang.startsWith('de')){
+if(!best||v.localService)best=v;
+}
+}
+return best;
+}
+
+function updateVorleserProgress(){
+document.getElementById('vorleserProgress').textContent=
+'Satz '+(sentenceTexts.length>0?currentSentenceIdx+1:0)+' von '+sentenceTexts.length;
+}
+
+function highlightSentence(idx){
+sentenceSpans.forEach((s,i)=>{
+s.classList.remove('current','read');
+if(i<idx)s.classList.add('read');
+else if(i===idx)s.classList.add('current');
+});
+if(sentenceSpans[idx]){
+sentenceSpans[idx].scrollIntoView({behavior:'smooth',block:'center'});
+}
+}
+
+function speakSentence(idx){
+if(idx>=sentenceTexts.length){
+stopReading();return;
+}
+currentSentenceIdx=idx;
+highlightSentence(idx);
+updateVorleserProgress();
+
+// Check if there's a pause before this sentence in the content array
+let contentIdx=-1;let sentCount=0;
+for(let i=0;i<currentSlide.content.length;i++){
+if(currentSlide.content[i].type==='sentence'){
+if(sentCount===idx){contentIdx=i;break;}
+sentCount++;
+}
+}
+// Check if previous content item is a pause
+let pauseBefore=false;
+if(contentIdx>0&&currentSlide.content[contentIdx-1].type==='pause'){
+pauseBefore=true;
+}
+
+const doSpeak=()=>{
+const utt=new SpeechSynthesisUtterance(sentenceTexts[idx]);
+utt.lang='de-DE';
+utt.rate=ttsRate;
+const voice=getGermanVoice();
+if(voice)utt.voice=voice;
+utt.onend=()=>{
+if(ttsPlaying&&!ttsPaused){
+speakSentence(idx+1);
+}
+};
+utt.onerror=(e)=>{
+if(e.error!=='interrupted'&&e.error!=='canceled'){
+if(ttsPlaying)speakSentence(idx+1);
+}
+};
+synth.speak(utt);
+};
+
+if(pauseBefore&&idx>0){
+setTimeout(doSpeak,1500);
+}else{
+doSpeak();
+}
+}
+
+function togglePlay(){
+if(!ttsPlaying){
+ttsPlaying=true;ttsPaused=false;
+updatePlayButton();
+speakSentence(currentSentenceIdx);
+}else if(ttsPaused){
+ttsPaused=false;
+updatePlayButton();
+synth.resume();
+}else{
+ttsPaused=true;
+updatePlayButton();
+synth.pause();
+}
+}
+
+function stopReading(){
+ttsPlaying=false;ttsPaused=false;
+synth.cancel();
+currentSentenceIdx=0;
+updatePlayButton();
+sentenceSpans.forEach(s=>{s.classList.remove('current','read')});
+if(currentMode==='vorleser')updateVorleserProgress();
+}
+
+function updatePlayButton(){
+document.getElementById('playIcon').style.display=
+(ttsPlaying&&!ttsPaused)?'none':'block';
+document.getElementById('pauseIcon').style.display=
+(ttsPlaying&&!ttsPaused)?'block':'none';
+}
+
+function skipNext(){
+if(currentSentenceIdx<sentenceTexts.length-1){
+synth.cancel();
+currentSentenceIdx++;
+if(ttsPlaying){
+ttsPaused=false;
+speakSentence(currentSentenceIdx);
+}else{
+highlightSentence(currentSentenceIdx);
+}
+updateVorleserProgress();
+}
+}
+
+function skipPrev(){
+if(currentSentenceIdx>0){
+synth.cancel();
+currentSentenceIdx--;
+if(ttsPlaying){
+ttsPaused=false;
+speakSentence(currentSentenceIdx);
+}else{
+highlightSentence(currentSentenceIdx);
+}
+updateVorleserProgress();
+}
+}
+
+function changeSpeed(delta){
+ttsRate=Math.round((ttsRate+delta)*10)/10;
+if(ttsRate<0.7)ttsRate=0.7;
+if(ttsRate>1.2)ttsRate=1.2;
+document.getElementById('speedValue').textContent=ttsRate.toFixed(1)+'x';
+// If playing, restart current sentence with new speed
+if(ttsPlaying&&!ttsPaused){
+synth.cancel();
+speakSentence(currentSentenceIdx);
+}
+}
+
+// ==================== TIMER ====================
+function startTimer(){
+clearTimer();
+timerSeconds=0;
+updateTimerDisplay();
+timerInterval=setInterval(()=>{
+timerSeconds++;
+updateTimerDisplay();
+},1000);
+}
+
+function clearTimer(){
+if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
+}
+
+function updateTimerDisplay(){
+const m=Math.floor(timerSeconds/60);
+const s=timerSeconds%60;
+document.getElementById('timerValue').textContent=m+':'+(s<10?'0':'')+s;
+}
+
+// ==================== FERTIG ====================
+function markDone(){
+if(!currentSlide)return;
+markSlideDone(currentSlide.id);
+updateFertigBtn();
+updateSessionBar();
+}
+
+function updateFertigBtn(){
+const btn=document.getElementById('fertigBtn');
+if(isSlidesDone(currentSlide.id)){
+btn.textContent='✓ Bereits geübt';
+btn.classList.add('done');
+}else{
+btn.textContent='✓ Folie geübt';
+btn.classList.remove('done');
+}
+}
+
+// ==================== INIT ====================
+function init(){
+// Preload voices
+if(synth.onvoiceschanged!==undefined){
+synth.onvoiceschanged=()=>{};
+}
+synth.getVoices();
+
+renderOverview();
+
+// Position slider initially
+requestAnimationFrame(()=>{
+const btnL=document.getElementById('btnLesen');
+const slider=document.getElementById('modeSlider');
+if(btnL){
+slider.style.left=btnL.offsetLeft+'px';
+slider.style.width=btnL.offsetWidth+'px';
+}
+});
+}
+
+// iOS Safari fix: keep synth alive
+if(/iPhone|iPad|iPod/.test(navigator.userAgent)){
+setInterval(()=>{
+if(synth.speaking&&!synth.paused){
+synth.pause();synth.resume();
+}
+},10000);
+}
+
+document.addEventListener('DOMContentLoaded',init);
+
+// ==================== SERVICE WORKER ====================
+if('serviceWorker' in navigator){
+navigator.serviceWorker.register('data:text/javascript;base64,'+btoa(`
+self.addEventListener('install',e=>{self.skipWaiting()});
+self.addEventListener('activate',e=>{e.waitUntil(clients.claim())});
+self.addEventListener('fetch',e=>{
+e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response('Offline',{status:503}))));
+});
+`)).catch(()=>{});
+}
+</script>
+</body>
+</html>
