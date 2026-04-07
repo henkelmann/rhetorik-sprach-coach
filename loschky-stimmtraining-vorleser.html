@@ -437,6 +437,26 @@ color:var(--vorleser-accent);
 font-size:.75rem;color:var(--text-dim);
 margin-top:2px;
 }
+/* Voice selector */
+.voice-control{
+margin-top:12px;display:flex;flex-direction:column;gap:6px;
+}
+.voice-label{font-size:.75rem;color:var(--text-dim);text-align:center}
+.voice-select{
+width:100%;padding:10px 14px;
+background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+border-radius:var(--radius-sm);
+color:var(--text);font-size:.85rem;font-family:inherit;
+appearance:none;-webkit-appearance:none;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238a8a9a'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+background-repeat:no-repeat;background-position:right 12px center;
+cursor:pointer;
+}
+.voice-select:focus{outline:none;border-color:var(--vorleser-accent,var(--accent))}
+.voice-hint{
+font-size:.72rem;color:var(--text-muted);text-align:center;
+line-height:1.4;margin-top:4px;
+}
 
 /* Tipps Vorleser button */
 .tipps-vorleser-btn{
@@ -645,15 +665,81 @@ let vRate = 1.0;
 let vUtterance = null;
 let vGermanVoice = null;
 
-/* Find German voice */
-function findGermanVoice() {
-  const voices = speechSynthesis.getVoices();
-  vGermanVoice = voices.find(v => v.lang.startsWith('de') && v.localService) ||
-                 voices.find(v => v.lang.startsWith('de')) || null;
+/* Voice selection */
+let availableVoices = [];
+let selectedVoiceURI = localStorage.getItem('loschky-voice-uri')||'';
+
+function isEnhanced(v){
+  const n=v.name.toLowerCase();
+  return n.includes('enhanced')||n.includes('premium')||n.includes('neural')||n.includes('natural');
 }
+
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  availableVoices = voices.filter(v => v.lang && v.lang.startsWith('de'));
+  availableVoices.sort((a,b)=>{
+    const aE=isEnhanced(a)?0:1;
+    const bE=isEnhanced(b)?0:1;
+    if(aE!==bE)return aE-bE;
+    if(a.localService!==b.localService)return a.localService?-1:1;
+    return a.name.localeCompare(b.name);
+  });
+  // Set best voice as default
+  if(!selectedVoiceURI && availableVoices.length>0){
+    selectedVoiceURI = availableVoices[0].voiceURI;
+  }
+  vGermanVoice = getSelectedVoice();
+  populateVoiceSelect();
+}
+
+function getSelectedVoice(){
+  if(selectedVoiceURI){
+    const v=availableVoices.find(v=>v.voiceURI===selectedVoiceURI);
+    if(v)return v;
+  }
+  return availableVoices.length>0?availableVoices[0]:null;
+}
+
+function populateVoiceSelect(){
+  const sel=document.getElementById('voiceSelect');
+  if(!sel)return;
+  sel.innerHTML='';
+  if(availableVoices.length===0){
+    sel.innerHTML='<option value="">Keine deutsche Stimme gefunden</option>';
+    return;
+  }
+  availableVoices.forEach(v=>{
+    const opt=document.createElement('option');
+    opt.value=v.voiceURI;
+    let label=v.name.replace('com.apple.','').replace('speech.synthesis.voice.','');
+    if(isEnhanced(v))label+=' ★';
+    else if(v.localService)label+=' (lokal)';
+    else label+=' (online)';
+    opt.textContent=label;
+    sel.appendChild(opt);
+  });
+  if(selectedVoiceURI && availableVoices.find(v=>v.voiceURI===selectedVoiceURI)){
+    sel.value=selectedVoiceURI;
+  }else if(availableVoices.length>0){
+    sel.value=availableVoices[0].voiceURI;
+  }
+  const hint=document.getElementById('voiceHint');
+  if(hint){hint.style.display=availableVoices.some(v=>isEnhanced(v))?'none':'block'}
+}
+
+function onVoiceChange(uri){
+  selectedVoiceURI=uri;
+  localStorage.setItem('loschky-voice-uri',uri);
+  vGermanVoice=getSelectedVoice();
+  if(vPlaying&&!vPaused){
+    speechSynthesis.cancel();
+    speakSentence(vCurrentIdx);
+  }
+}
+
 if (typeof speechSynthesis !== 'undefined') {
-  speechSynthesis.onvoiceschanged = findGermanVoice;
-  findGermanVoice();
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
 }
 
 function splitSentences(text) {
@@ -849,6 +935,13 @@ function renderVorleserCard(exId) {
       </div>
       <div class="vorleser-speed" id="v-speed-pills">${speedPills}</div>
       <div class="vorleser-progress-text" id="v-progress">Satz 1 von ${sentences.length}</div>
+      <div class="voice-control">
+        <span class="voice-label">Stimme</span>
+        <select class="voice-select" id="voiceSelect" onchange="onVoiceChange(this.value)">
+          <option value="">Wird geladen...</option>
+        </select>
+        <div class="voice-hint" id="voiceHint">💡 Tipp: Lade auf dem iPhone unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch hochwertige Stimmen herunter (z.B. Anna Enhanced)</div>
+      </div>
     </div>
   </div>`;
 }
@@ -860,6 +953,7 @@ function initVorleserForExercise(exId) {
   vPlaying = false;
   vPaused = false;
   updateVorleserUI();
+  populateVoiceSelect();
 }
 
 /* ── VORLESER CONTROL ── */

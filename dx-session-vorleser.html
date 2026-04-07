@@ -226,6 +226,31 @@ display:flex;align-items:center;justify-content:center;
 }
 .speed-btn:active{background:rgba(255,255,255,.12)}
 
+/* Voice selector */
+.voice-control{
+margin-top:12px;display:flex;flex-direction:column;gap:6px;
+}
+.voice-label{font-size:.75rem;color:var(--text-dim);text-align:center}
+.voice-select{
+width:100%;padding:10px 14px;
+background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+border-radius:var(--radius-sm);
+color:var(--text);font-size:.85rem;font-family:inherit;
+appearance:none;-webkit-appearance:none;
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='%238a8a9a'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+background-repeat:no-repeat;background-position:right 12px center;
+cursor:pointer;
+}
+.voice-select:focus{outline:none;border-color:var(--accent)}
+.voice-quality{
+display:inline-block;font-size:.65rem;padding:2px 6px;border-radius:4px;
+margin-left:4px;vertical-align:middle;
+}
+.voice-hint{
+font-size:.72rem;color:var(--text-muted);text-align:center;
+line-height:1.4;margin-top:4px;
+}
+
 /* Timer */
 .timer-bar{
 background:linear-gradient(145deg,var(--card),#0e0e1a);
@@ -338,6 +363,13 @@ transition:background .3s;
 <button class="speed-btn" onclick="changeSpeed(-0.1)">−</button>
 <span class="speed-value" id="speedValue">1.0x</span>
 <button class="speed-btn" onclick="changeSpeed(0.1)">+</button>
+</div>
+<div class="voice-control">
+<span class="voice-label">Stimme</span>
+<select class="voice-select" id="voiceSelect" onchange="onVoiceChange(this.value)">
+<option value="">Wird geladen...</option>
+</select>
+<div class="voice-hint" id="voiceHint">💡 Tipp: Lade auf dem iPhone unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Deutsch hochwertige Stimmen herunter (z.B. Anna Enhanced)</div>
 </div>
 </div>
 <div class="text-content" id="textContent"></div>
@@ -669,15 +701,79 @@ updateVorleserProgress();
 }
 
 // ==================== VORLESER / TTS ====================
-function getGermanVoice(){
+let selectedVoiceURI = localStorage.getItem('dx-voice-uri')||'';
+let availableVoices = [];
+
+function loadVoices(){
 const voices=synth.getVoices();
-let best=null;
-for(const v of voices){
-if(v.lang&&v.lang.startsWith('de')){
-if(!best||v.localService)best=v;
+availableVoices=voices.filter(v=>v.lang&&v.lang.startsWith('de'));
+// Sort: Enhanced/Premium first, then local, then remote
+availableVoices.sort((a,b)=>{
+const aE=isEnhanced(a)?0:1;
+const bE=isEnhanced(b)?0:1;
+if(aE!==bE)return aE-bE;
+if(a.localService!==b.localService)return a.localService?-1:1;
+return a.name.localeCompare(b.name);
+});
+populateVoiceSelect();
+}
+
+function isEnhanced(v){
+const n=v.name.toLowerCase();
+return n.includes('enhanced')||n.includes('premium')||n.includes('neural')||n.includes('natural');
+}
+
+function populateVoiceSelect(){
+const sel=document.getElementById('voiceSelect');
+if(!sel)return;
+sel.innerHTML='';
+if(availableVoices.length===0){
+sel.innerHTML='<option value="">Keine deutsche Stimme gefunden</option>';
+return;
+}
+availableVoices.forEach((v,i)=>{
+const opt=document.createElement('option');
+opt.value=v.voiceURI;
+let label=v.name.replace('com.apple.','').replace('speech.synthesis.voice.','');
+if(isEnhanced(v))label+=' ★';
+else if(v.localService)label+=' (lokal)';
+else label+=' (online)';
+opt.textContent=label;
+sel.appendChild(opt);
+});
+// Restore saved preference
+if(selectedVoiceURI&&availableVoices.find(v=>v.voiceURI===selectedVoiceURI)){
+sel.value=selectedVoiceURI;
+}else if(availableVoices.length>0){
+// Auto-select best voice (first = enhanced/local)
+sel.value=availableVoices[0].voiceURI;
+selectedVoiceURI=availableVoices[0].voiceURI;
+}
+// Update hint visibility
+const hint=document.getElementById('voiceHint');
+if(hint){
+const hasEnhanced=availableVoices.some(v=>isEnhanced(v));
+hint.style.display=hasEnhanced?'none':'block';
 }
 }
-return best;
+
+function onVoiceChange(uri){
+selectedVoiceURI=uri;
+localStorage.setItem('dx-voice-uri',uri);
+// If currently playing, restart current sentence with new voice
+if(ttsPlaying&&!ttsPaused){
+synth.cancel();
+speakSentence(currentSentenceIdx);
+}
+}
+
+function getSelectedVoice(){
+if(selectedVoiceURI){
+const v=availableVoices.find(v=>v.voiceURI===selectedVoiceURI);
+if(v)return v;
+}
+// Fallback: best available
+return availableVoices.length>0?availableVoices[0]:null;
 }
 
 function updateVorleserProgress(){
@@ -722,7 +818,7 @@ const doSpeak=()=>{
 const utt=new SpeechSynthesisUtterance(sentenceTexts[idx]);
 utt.lang='de-DE';
 utt.rate=ttsRate;
-const voice=getGermanVoice();
+const voice=getSelectedVoice();
 if(voice)utt.voice=voice;
 utt.onend=()=>{
 if(ttsPlaying&&!ttsPaused){
@@ -858,11 +954,11 @@ btn.classList.remove('done');
 
 // ==================== INIT ====================
 function init(){
-// Preload voices
+// Load voices – may be async on some browsers
+loadVoices();
 if(synth.onvoiceschanged!==undefined){
-synth.onvoiceschanged=()=>{};
+synth.onvoiceschanged=()=>{loadVoices()};
 }
-synth.getVoices();
 
 renderOverview();
 
