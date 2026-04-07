@@ -792,9 +792,38 @@ sentenceSpans[idx].scrollIntoView({behavior:'smooth',block:'center'});
 }
 }
 
+function onSlideFinished(){
+// Aktuelle Folie als geübt markieren
+if(currentSlide){
+markSlideDone(currentSlide.id);
+updateFertigBtn();
+renderOverview();
+}
+stopReading();
+// Nächste Folie finden und automatisch starten
+const nextId=currentSlide?currentSlide.id+1:null;
+const nextSlide=nextId?slides.find(s=>s.id===nextId):null;
+if(nextSlide){
+setTimeout(()=>{
+showSlide(nextSlide.id);
+// Auto-Start Vorleser nach kurzem Delay
+setTimeout(()=>{
+setMode('vorleser');
+setTimeout(()=>{
+if(sentenceTexts.length>0){
+ttsPlaying=true;ttsPaused=false;
+updatePlayButton();
+speakSentence(0);
+}
+},400);
+},400);
+},1500);
+}
+}
+
 function speakSentence(idx){
 if(idx>=sentenceTexts.length){
-stopReading();return;
+onSlideFinished();return;
 }
 currentSentenceIdx=idx;
 highlightSentence(idx);

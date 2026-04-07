@@ -977,9 +977,58 @@ function toggleVorleser() {
   }
 }
 
+function getNextExerciseInCategory(catId, currentExId) {
+  const cat = categories.find(c => c.id === catId);
+  if (!cat || !cat.exercises) return null;
+  const idx = cat.exercises.findIndex(e => e.id === currentExId);
+  if (idx >= 0 && idx < cat.exercises.length - 1) {
+    return cat.exercises[idx + 1];
+  }
+  return null;
+}
+
+function onVorleserFinished() {
+  // Aktuelle Übung als fertig markieren
+  const cat = categories.find(c => c.id === currentCatId);
+  if (cat && cat.exercises) {
+    const currentEx = cat.exercises.find(e => vorleserTexts[e.id] && e.id === getCurrentExerciseId());
+    if (currentEx) {
+      markDone(currentEx.id);
+    }
+  }
+  stopVorleser();
+  // Nächste Übung in der Kategorie finden und automatisch starten
+  const nextEx = getNextExerciseInCategory(currentCatId, getCurrentExerciseId());
+  if (nextEx && vorleserTexts[nextEx.id]) {
+    setTimeout(() => {
+      showExercise(currentCatId, nextEx.id);
+      // Auto-Start Vorleser nach kurzem Delay
+      setTimeout(() => {
+        if (vorleserMode && vSentences.length > 0) {
+          vPlaying = true;
+          vPaused = false;
+          speakSentence(0);
+          updatePlayButton(true);
+        }
+      }, 800);
+    }, 1500);
+  }
+}
+
+function getCurrentExerciseId() {
+  // Finde aktuelle Übung anhand der geladenen Sätze
+  for (const [exId, text] of Object.entries(vorleserTexts)) {
+    const sentences = splitSentences(text).map(s => s.trim());
+    if (sentences.length === vSentences.length && sentences[0] === vSentences[0]) {
+      return exId;
+    }
+  }
+  return null;
+}
+
 function speakSentence(idx) {
   if (idx >= vSentences.length) {
-    stopVorleser();
+    onVorleserFinished();
     return;
   }
   speechSynthesis.cancel();
@@ -997,7 +1046,7 @@ function speakSentence(idx) {
       updateVorleserUI();
       speakSentence(vCurrentIdx);
     } else {
-      stopVorleser();
+      onVorleserFinished();
     }
   };
   utt.onerror = function() {
