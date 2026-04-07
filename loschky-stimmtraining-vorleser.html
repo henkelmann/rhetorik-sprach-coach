@@ -1213,6 +1213,82 @@ updateSessionBar();
 /* refresh check in category list if we go back */
 }
 
+/* ── HINTERGRUND-WIEDERGABE (iOS Screen-Lock Fix) ── */
+// Silent WAV (1 sample, 8kHz mono) als base64 — hält Audio-Session aktiv
+const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgACABAAZGF0YQAAAAA=';
+const silentAudio=new Audio(SILENT_WAV);
+silentAudio.loop=true;
+silentAudio.volume=0.01;
+
+let keepAliveInterval=null;
+
+function startKeepAlive(){
+  // Stille Audio starten (hält iOS Audio-Session am Leben)
+  silentAudio.play().catch(()=>{});
+  // Periodisch speechSynthesis pingen, damit iOS es nicht pausiert
+  if(!keepAliveInterval){
+    keepAliveInterval=setInterval(()=>{
+      if(typeof speechSynthesis!=='undefined' && speechSynthesis.speaking && !speechSynthesis.paused){
+        speechSynthesis.pause();
+        speechSynthesis.resume();
+      }
+    },8000);
+  }
+}
+
+function stopKeepAlive(){
+  silentAudio.pause();
+  silentAudio.currentTime=0;
+  if(keepAliveInterval){
+    clearInterval(keepAliveInterval);
+    keepAliveInterval=null;
+  }
+}
+
+// Wenn App in den Hintergrund geht / zurückkommt
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden) return;
+  // App ist wieder sichtbar — Speech fortsetzen falls nötig
+  if(typeof speechSynthesis==='undefined') return;
+  if(vPlaying && !vPaused){
+    // iOS hat möglicherweise die Sprache gestoppt
+    if(!speechSynthesis.speaking){
+      speakSentence(vCurrentIdx);
+    } else {
+      speechSynthesis.resume();
+    }
+  }
+  // Auch Tipps-Vorleser prüfen
+  const anyTipp=Object.keys(tippVPlaying).find(k=>tippVPlaying[k]);
+  if(anyTipp && !speechSynthesis.speaking){
+    // Tipp war aktiv aber wurde gestoppt — neu starten
+    toggleTippVorleser(parseInt(anyTipp));
+    toggleTippVorleser(parseInt(anyTipp));
+  }
+});
+
+// KeepAlive in speakSentence/stopVorleser einbinden
+const _origSpeakSentence=speakSentence;
+speakSentence=function(idx){
+  startKeepAlive();
+  _origSpeakSentence(idx);
+};
+const _origStopVorleser=stopVorleser;
+stopVorleser=function(){
+  _origStopVorleser();
+  stopKeepAlive();
+};
+const _origToggleTippVorleser=toggleTippVorleser;
+toggleTippVorleser=function(idx){
+  const wasTippPlaying=!!tippVPlaying[idx];
+  _origToggleTippVorleser(idx);
+  if(!wasTippPlaying && tippVPlaying[idx]){
+    startKeepAlive();
+  } else if(wasTippPlaying){
+    stopKeepAlive();
+  }
+};
+
 /* ── INIT ── */
 renderCategories();
 updateSessionBar();

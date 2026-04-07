@@ -973,14 +973,63 @@ slider.style.width=btnL.offsetWidth+'px';
 });
 }
 
-// iOS Safari fix: keep synth alive
-if(/iPhone|iPad|iPod/.test(navigator.userAgent)){
-setInterval(()=>{
-if(synth.speaking&&!synth.paused){
-synth.pause();synth.resume();
+// ==================== HINTERGRUND-WIEDERGABE (iOS Screen-Lock Fix) ====================
+// Silent WAV (1 sample, 8kHz mono) als base64 — hält Audio-Session aktiv
+const SILENT_WAV='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgACABAAZGF0YQAAAAA=';
+const silentAudio=new Audio(SILENT_WAV);
+silentAudio.loop=true;
+silentAudio.volume=0.01;
+
+let keepAliveInterval=null;
+
+function startKeepAlive(){
+  silentAudio.play().catch(()=>{});
+  if(!keepAliveInterval){
+    keepAliveInterval=setInterval(()=>{
+      if(synth.speaking&&!synth.paused){
+        synth.pause();synth.resume();
+      }
+    },8000);
+  }
 }
-},10000);
+
+function stopKeepAlive(){
+  silentAudio.pause();
+  silentAudio.currentTime=0;
+  if(keepAliveInterval){
+    clearInterval(keepAliveInterval);
+    keepAliveInterval=null;
+  }
 }
+
+// Wenn App wieder sichtbar wird — Speech fortsetzen
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden)return;
+  if(ttsPlaying&&!ttsPaused){
+    if(!synth.speaking){
+      speakSentence(currentSentenceIdx);
+    }else{
+      synth.resume();
+    }
+  }
+});
+
+// KeepAlive in Play/Stop einbinden
+const _origTogglePlay=togglePlay;
+togglePlay=function(){
+  const wasPlaying=ttsPlaying&&!ttsPaused;
+  _origTogglePlay();
+  if(ttsPlaying&&!ttsPaused){
+    startKeepAlive();
+  }else if(!ttsPlaying||ttsPaused){
+    if(!ttsPlaying)stopKeepAlive();
+  }
+};
+const _origStopReading=stopReading;
+stopReading=function(){
+  _origStopReading();
+  stopKeepAlive();
+};
 
 document.addEventListener('DOMContentLoaded',init);
 
