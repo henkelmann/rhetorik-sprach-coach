@@ -226,6 +226,23 @@ display:flex;align-items:center;justify-content:center;
 }
 .speed-btn:active{background:rgba(255,255,255,.12)}
 
+/* Slide navigation */
+.slide-nav{
+display:flex;justify-content:space-between;gap:12px;
+margin-top:20px;padding-top:16px;
+border-top:1px solid rgba(255,255,255,.06);
+}
+.slide-nav-btn{
+display:flex;align-items:center;gap:6px;
+background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+border-radius:var(--radius-sm);padding:12px 16px;
+color:var(--accent);font-size:.82rem;font-weight:600;
+cursor:pointer;font-family:inherit;transition:background .2s,transform .15s;
+}
+.slide-nav-btn:active{transform:scale(.97);background:rgba(255,255,255,.1)}
+.slide-nav-btn:disabled{opacity:.3;pointer-events:none}
+.slide-nav-btn svg{width:18px;height:18px;flex-shrink:0}
+
 /* Voice selector */
 .voice-control{
 margin-top:12px;display:flex;flex-direction:column;gap:6px;
@@ -379,6 +396,16 @@ transition:background .3s;
 <span class="timer-value" id="timerValue">0:00</span>
 </div>
 <button class="fertig-btn" id="fertigBtn" onclick="markDone()">✓ Folie geübt</button>
+<div class="slide-nav">
+<button class="slide-nav-btn" id="prevSlideBtn" onclick="goToPrevSlide()">
+<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+Vorherige Folie
+</button>
+<button class="slide-nav-btn" id="nextSlideBtn" onclick="goToNextSlide()">
+Nächste Folie
+<svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+</button>
+</div>
 </div>
 
 </div>
@@ -633,6 +660,43 @@ updateModeUI();
 renderContent();
 startTimer();
 updateFertigBtn();
+updateSlideNav();
+}
+
+function updateSlideNav(){
+if(!currentSlide)return;
+const prev=document.getElementById('prevSlideBtn');
+const next=document.getElementById('nextSlideBtn');
+if(prev)prev.disabled=(currentSlide.id<=1);
+if(next)next.disabled=(currentSlide.id>=slides.length);
+}
+
+function goToNextSlide(){
+if(!currentSlide||currentSlide.id>=slides.length)return;
+stopReading();clearTimer();
+const wasVorleser=(currentMode==='vorleser');
+showSlide(currentSlide.id+1);
+if(wasVorleser){
+setMode('vorleser');
+ttsPlaying=true;ttsPaused=false;
+updatePlayButton();
+startKeepAlive();
+setTimeout(()=>speakSentence(0),400);
+}
+}
+
+function goToPrevSlide(){
+if(!currentSlide||currentSlide.id<=1)return;
+stopReading();clearTimer();
+const wasVorleser=(currentMode==='vorleser');
+showSlide(currentSlide.id-1);
+if(wasVorleser){
+setMode('vorleser');
+ttsPlaying=true;ttsPaused=false;
+updatePlayButton();
+startKeepAlive();
+setTimeout(()=>speakSentence(0),400);
+}
 }
 
 // ==================== MODE TOGGLE ====================
